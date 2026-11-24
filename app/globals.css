@@ -1,0 +1,511 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================================================
+   LUXE — design foundation
+   Warm gold needs cold ambient light to read as metal. That tension
+   is the whole palette; everything else stays quiet.
+   =================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* elevation surfaces */
+  --surface-0: #08080A;
+  --surface-1: #0E0E11;
+  --surface-2: #17171B;
+  --surface-3: #1E1E23;
+
+  /* glass, in three weights rather than one */
+  --glass-thin:  rgba(255, 255, 255, 0.03);
+  --glass-base:  rgba(255, 255, 255, 0.05);
+  --glass-thick: rgba(255, 255, 255, 0.08);
+
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-bright: rgba(255, 255, 255, 0.14);
+
+  /* motion — one easing across the site */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-quick: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 520ms;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply bg-ink text-white font-body antialiased;
+  /* cold ambient above, warm bounce below — like a lit studio */
+  background-image:
+    radial-gradient(1100px 700px at 78% -12%, rgba(78, 100, 128, 0.10), transparent 62%),
+    radial-gradient(900px 560px at 12% 108%, rgba(236, 72, 153, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* a barely-there grain stops large dark areas from banding */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@layer components {
+  /* ---- glass, in weights ------------------------------------------ */
+  .glass {
+    background: var(--glass-base);
+    border: 1px solid var(--hairline);
+    @apply backdrop-blur-xl rounded-2xl;
+  }
+  .glass-thin {
+    background: var(--glass-thin);
+    border: 1px solid var(--hairline);
+    @apply backdrop-blur-md rounded-2xl;
+  }
+  .glass-raised {
+    background: var(--glass-thick);
+    border: 1px solid var(--hairline-bright);
+    @apply backdrop-blur-2xl rounded-2xl shadow-e3;
+  }
+  .glass-gold {
+    @apply glass shadow-glow;
+    border-color: rgba(236, 72, 153, 0.25);
+  }
+
+  /* ---- type -------------------------------------------------------- */
+  .gold-text {
+    @apply bg-gold-text bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer;
+  }
+  .metal-text {
+    @apply bg-metal bg-clip-text text-transparent bg-[length:200%_auto];
+  }
+  .section-title {
+    @apply font-display text-display-md font-bold;
+  }
+  .hero-title {
+    @apply font-display text-display-xl font-bold;
+  }
+  .muted { @apply text-smoke; }
+
+  /* ---- buttons ----------------------------------------------------- */
+  .btn-gold {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-full
+           bg-gradient-to-l from-gold-soft via-gold to-gold-dim text-ink font-semibold
+           px-7 py-3 overflow-hidden;
+    transition: box-shadow var(--dur-base) var(--ease),
+                transform var(--dur-quick) var(--ease);
+  }
+  .btn-gold::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.45) 50%, transparent 60%);
+    background-size: 250% 100%;
+    background-position: 200% 0;
+    transition: background-position var(--dur-slow) var(--ease);
+  }
+  .btn-gold:hover { @apply shadow-glow; }
+  .btn-gold:hover::after { background-position: -120% 0; }
+  .btn-gold:active { transform: scale(0.985); }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full
+           border border-gold/35 text-gold px-7 py-3;
+    transition: background-color var(--dur-base) var(--ease),
+                border-color var(--dur-base) var(--ease),
+                box-shadow var(--dur-base) var(--ease);
+  }
+  .btn-ghost:hover {
+    @apply bg-gold/10 border-gold/60 shadow-glow-soft;
+  }
+
+  /* ---- inputs ------------------------------------------------------ */
+  .input {
+    background: var(--glass-base);
+    border: 1px solid var(--hairline);
+    @apply w-full rounded-xl px-4 py-3 text-white placeholder:text-smoke-dim
+           focus:outline-none focus:border-gold/60 focus:ring-1 focus:ring-gold/30;
+    transition: border-color var(--dur-quick) var(--ease),
+                background-color var(--dur-quick) var(--ease);
+  }
+
+  /* ---- a hairline that carries light ------------------------------- */
+  .rule {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--hairline-bright), transparent);
+  }
+}
+
+/* ---- loading placeholders ------------------------------------------- */
+/* A slow sheen instead of a blink — it reads as the card arriving. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--glass-thin);
+  border: 1px solid var(--hairline);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  animation: skeletonSweep 1.8s var(--ease) infinite;
+}
+@keyframes skeletonSweep {
+  0%   { background-position: 180% 0; }
+  100% { background-position: -80% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}
+
+/* keyboard focus is always visible, never only on hover */
+:focus-visible {
+  outline: 2px solid rgba(236, 72, 153, 0.7);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(236, 72, 153, 0.32);
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #08080A; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#6D28D9, #8B5CF6);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(#8B5CF6, #EC4899); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  body::before { display: none; }
+}
+
+/* ---- Holographic product card --------------------------------------- */
+/* All motion is driven by CSS variables written from useHolographic.
+   Only transform and opacity animate, so this stays off the main thread. */
+
+.holo-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  --px: 0px;
+  --py: 0px;
+  --hue: 0deg;
+  --active: 0;
+
+  position: relative;
+  transform-style: preserve-3d;
+  transform:
+    perspective(900px)
+    rotateX(var(--rx))
+    rotateY(var(--ry))
+    translateZ(0);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* GPU layers are promoted only during interaction — a page of cards
+   should not hold twenty composited layers at rest. */
+.holo-card:hover,
+.holo-card:focus-within {
+  transition-duration: 120ms;
+  will-change: transform;
+}
+
+.holo-card__media {
+  position: relative;
+  overflow: hidden;          /* clips the light layers to the frame */
+  isolation: isolate;
+  transform-style: preserve-3d;
+}
+
+/* a tilted card must never widen the page */
+.holo-card { max-width: 100%; }
+
+/* 1. Dynamic light — a soft source that follows the pointer */
+.holo-card__light {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 40% at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.06) 35%,
+    transparent 65%
+  );
+  opacity: calc(var(--active) * 0.9);
+  transition: opacity 380ms ease;
+  mix-blend-mode: soft-light;
+}
+
+/* 2. Iridescent layer — hidden at rest, revealed by angle */
+.holo-card__iri {
+  position: absolute;
+  inset: -20%;
+  z-index: 4;
+  pointer-events: none;
+  background: conic-gradient(
+    from calc(180deg + var(--hue)) at var(--mx) var(--my),
+    rgba(236, 72, 153, 0.00),
+    rgba(236, 72, 153, 0.30),
+    rgba(120, 200, 255, 0.18),
+    rgba(200, 140, 255, 0.16),
+    rgba(236, 72, 153, 0.28),
+    rgba(236, 72, 153, 0.00)
+  );
+  opacity: calc(var(--active) * 0.55);
+  transition: opacity 420ms ease;
+  mix-blend-mode: color-dodge;
+  filter: blur(12px) saturate(1.15);
+}
+
+/* 3. Specular reflection — a hard streak, like light on glass */
+.holo-card__spec {
+  position: absolute;
+  inset: -35%;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.14) 47%,
+    rgba(255, 255, 255, 0.42) 50%,
+    rgba(255, 255, 255, 0.14) 53%,
+    transparent 58%
+  );
+  background-size: 220% 100%;
+  background-position: calc(var(--mx) * 1.6) 0;
+  opacity: calc(var(--active) * 0.5);
+  transition: opacity 380ms ease;
+  mix-blend-mode: screen;
+}
+
+/* 4. Gentle scanlines — texture, only close up */
+.holo-card__scan {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(236, 72, 153, 0.05) 0px,
+    rgba(236, 72, 153, 0.05) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity: calc(var(--active) * 0.45);
+  transition: opacity 420ms ease;
+}
+
+/* 5. Parallax — image drifts further than the frame */
+.holo-card__layer {
+  transform: translate3d(var(--px), var(--py), 0) scale(1.06);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.holo-card:hover .holo-card__layer,
+.holo-card:focus-within .holo-card__layer {
+  will-change: transform;
+}
+
+/* 6. Floating product + depth for the text block */
+.holo-card__float {
+  transform: translate3d(calc(var(--px) * 1.5), calc(var(--py) * 1.5), 0);
+  transition: transform 460ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.holo-card__body {
+  transform: translate3d(calc(var(--px) * -0.35), 0, 0);
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 7. Gold bloom beneath the card */
+.holo-card__glow {
+  position: absolute;
+  inset: auto 6% -16px 6%;
+  height: 38px;
+  z-index: -1;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(236, 72, 153, 0.45), transparent 72%);
+  filter: blur(16px);
+  opacity: calc(var(--active) * 0.9);
+  transition: opacity 420ms ease;
+}
+
+/* 8. Edge highlight that traces the light */
+.holo-card__edge {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    calc(120deg + var(--hue)),
+    rgba(236, 72, 153, 0.55),
+    rgba(255, 255, 255, 0.18),
+    rgba(236, 72, 153, 0.10)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: calc(var(--active) * 0.85);
+  transition: opacity 420ms ease;
+}
+
+/* keyboard focus must be obvious without any hover */
+.holo-card:focus-within {
+  outline: 2px solid rgba(236, 72, 153, 0.65);
+  outline-offset: 3px;
+}
+
+/* Reduced motion: keep the card still, keep a hint of polish */
+@media (prefers-reduced-motion: reduce) {
+  .holo-card,
+  .holo-card__layer,
+  .holo-card__float,
+  .holo-card__body {
+    transform: none !important;
+    transition: none !important;
+  }
+  .holo-card__iri,
+  .holo-card__spec,
+  .holo-card__scan,
+  .holo-card__light {
+    opacity: 0 !important;
+  }
+  .holo-card__glow { transition: none; }
+}
+
+/* Coarse pointers get a lighter stack — protects scroll performance */
+@media (hover: none) {
+  /* coarse pointers get a lighter stack so scrolling stays at 60fps */
+  .holo-card__scan { display: none; }
+  .holo-card__iri { filter: none; opacity: calc(var(--active) * 0.4); }
+  .holo-card__spec { display: none; }
+}
+
+
+/* ---- Hero variant: the main product image IS the hologram ------------ */
+/* Same layer stack as a card, but the effect never fully rests — it
+   breathes on its own and intensifies as the angle changes. */
+
+.holo-hero { --idle: 0.30; }
+
+/* light stays lit even without a pointer */
+.holo-hero .holo-card__light {
+  opacity: calc(var(--idle) + var(--active) * 0.55);
+  background: radial-gradient(
+    circle 45% at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.28),
+    rgba(255, 255, 255, 0.08) 38%,
+    transparent 68%
+  );
+}
+
+/* iridescence is the signature — visible at rest, richer on interaction */
+.holo-hero .holo-card__iri {
+  opacity: calc(var(--idle) * 0.75 + var(--active) * 0.55);
+  filter: blur(18px) saturate(1.3);
+  animation: holoHeroDrift 14s ease-in-out infinite;
+}
+
+/* the specular streak sweeps slowly on its own */
+.holo-hero .holo-card__spec {
+  opacity: calc(var(--idle) * 0.55 + var(--active) * 0.5);
+  animation: holoHeroSweep 7s ease-in-out infinite;
+}
+
+.holo-hero .holo-card__scan {
+  opacity: calc(var(--idle) * 0.4 + var(--active) * 0.45);
+  animation: holoCardLines 9s linear infinite;
+}
+
+/* a gentle aurora behind the product, so it reads as projected light */
+.holo-hero::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 40% at 30% 25%, rgba(236, 72, 153, 0.22), transparent 65%),
+    radial-gradient(ellipse 45% 35% at 72% 70%, rgba(120, 200, 255, 0.16), transparent 65%);
+  filter: blur(28px);
+  opacity: calc(0.65 + var(--active) * 0.35);
+  animation: holoHeroAurora 12s ease-in-out infinite alternate;
+}
+
+/* base rings under the product, like a projection plate */
+.holo-hero::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4%;
+  width: 62%;
+  height: 8%;
+  z-index: 1;
+  pointer-events: none;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(236, 72, 153, 0.35), transparent 70%);
+  filter: blur(10px);
+  opacity: calc(0.5 + var(--active) * 0.5);
+}
+
+/* the product floats a touch, always */
+.holo-hero .holo-card__layer {
+  animation: holoHeroFloat 6s ease-in-out infinite;
+}
+
+@keyframes holoHeroDrift {
+  0%, 100% { --hue: -14deg; }
+  50%      { --hue: 14deg; }
+}
+@keyframes holoHeroSweep {
+  0%   { background-position: 190% 0; }
+  60%  { background-position: -90% 0; }
+  100% { background-position: -90% 0; }
+}
+@keyframes holoHeroAurora {
+  0%   { transform: translate3d(-2%, -1%, 0) scale(1); }
+  100% { transform: translate3d(2%, 2%, 0) scale(1.06); }
+}
+@keyframes holoHeroFloat {
+  0%, 100% { transform: translate3d(var(--px), calc(var(--py) - 4px), 0) scale(1.04); }
+  50%      { transform: translate3d(var(--px), calc(var(--py) + 4px), 0) scale(1.06); }
+}
+
+/* stillness for anyone who asked for it */
+@media (prefers-reduced-motion: reduce) {
+  .holo-hero::before,
+  .holo-hero::after,
+  .holo-hero .holo-card__iri,
+  .holo-hero .holo-card__spec,
+  .holo-hero .holo-card__scan,
+  .holo-hero .holo-card__layer {
+    animation: none !important;
+  }
+}
